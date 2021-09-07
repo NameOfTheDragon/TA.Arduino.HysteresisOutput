@@ -1,0 +1,29 @@
+{
+    "name": "TA.Arduino.HysteresisOutput",
+    "version": "1.0.0",
+    "description": "Accepts an input state and produces an output action which guarantees minimum stable on and off times. That is, once the output changes state, that state is latched for a minimum period. Example application: Given a rain detector that generates a pulse whenever a raindrop is detected, we might wish to produce an output that is latched on for several minutes from the last rain drop detection.",
+    "keywords": "timing, hysteresis, signal-processing, io",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Tigra-Astronomy/TA.Arduino.HysteresisOutput"
+    },
+    "authors": [
+        {
+            "name": "Tim Long (TimTek)",
+            "email": "Tim@tigra-astronomy.com",
+            "url": "https://github.com/sponsors/NameOfTheDragon",
+            "maintainer": true
+        }
+    ],
+    "license": "MIT",
+    "frameworks": "arduino",
+    "platforms": "*",
+    "examples": [],
+    "dependencies": [
+        {
+            "owner": "nameofthedragon",
+            "name": "TA.Arduino.Timer",
+            "version": "^1.0.0"
+        }
+    ]
+}
