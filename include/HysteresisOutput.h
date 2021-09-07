@@ -36,6 +36,13 @@ class HysteresisOutput
 		/// </summary>
 		void turnOff();
 
+		/// <summary>
+		/// Sets the state of input to the boolean value.
+		/// Note: the output state may not immediately change as it may be delayed by hysteresis.
+		/// </summary>
+		void setInputState(bool requestedState);
+
+
 		//void forceOn();
 		//void forceOff();
 		/// <summary>
@@ -47,7 +54,6 @@ class HysteresisOutput
 	private:
 		void setOutputState(bool state);
 		Duration getHysteresisTime();
-		void setInputState(bool requestedState);
 		Duration minimumTimeOn;
 		Duration minimumTimeOff;
 		std::function<void(bool)> invokeUserStateChange;
