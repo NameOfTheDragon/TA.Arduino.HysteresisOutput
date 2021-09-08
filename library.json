@@ -1,6 +1,6 @@
 {
     "name": "TA.Arduino.HysteresisOutput",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Accepts an input state and produces an output action which guarantees minimum stable on and off times. That is, once the output changes state, that state is latched for a minimum period. Example application: Given a rain detector that generates a pulse whenever a raindrop is detected, we might wish to produce an output that is latched on for several minutes from the last rain drop detection.",
     "keywords": "timing, hysteresis, signal-processing, io",
     "repository": {
@@ -17,7 +17,7 @@
     ],
     "license": "MIT",
     "frameworks": "arduino",
-    "platforms": "*",
+    "platforms": "samd",
     "examples": [],
     "dependencies": [
         {
