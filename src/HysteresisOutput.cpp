@@ -21,11 +21,18 @@ void HysteresisOutput::loop()
 {
 	// We don't need to take any action if the current state is already equal to the target state.
 	if (currentState == targetState)
+	{
+		// expired timers must be stopped or restarted, or there will be problems in 54 days!
+		if (hysteresis.expired())
+			hysteresis.stop();	
 		return;
-	// There is a pending state change, but we must wait for the hysteresis timer to expire.
+	}
+
+	// There is a pending state change, but we might be in hysteresis.
 	if (!hysteresis.expired())
 		return;
-	// Now we have a peddling state change and an expired timer: we can change the output state.
+
+	// Now we have a pending state change and an expired timer: we can change the output state.
 	setOutputState(targetState);
 }
 
@@ -38,7 +45,7 @@ void HysteresisOutput::loop()
 void HysteresisOutput::setOutputState(bool state)
 {
 	currentState = state;
-	invokeUserStateChange(state);
+	invokeUserStateChange(state);	// Calls the user-supplied state change function
 	hysteresis.setDuration(getHysteresisTime());
 }
 
