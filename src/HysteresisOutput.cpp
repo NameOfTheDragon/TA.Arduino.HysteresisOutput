@@ -24,7 +24,7 @@ void HysteresisOutput::loop()
 	{
 		// expired timers must be stopped or restarted, or there will be problems in 54 days!
 		if (hysteresis.expired())
-			hysteresis.stop();	
+			hysteresis.stop();
 		return;
 	}
 
@@ -45,7 +45,7 @@ void HysteresisOutput::loop()
 void HysteresisOutput::setOutputState(bool state)
 {
 	currentState = state;
-	invokeUserStateChange(state);	// Calls the user-supplied state change function
+	invokeUserStateChange(state); // Calls the user-supplied state change function
 	hysteresis.setDuration(getHysteresisTime());
 }
 
@@ -63,7 +63,12 @@ void HysteresisOutput::setInputState(bool requestedState)
 	// No hysteresis delay, immediate change in output state required.
 	if (!hysteresis.enabled())
 	{
-		setOutputState(requestedState);
+		/*
+		Setting the output state is expected to be idempotent, but we only call it
+		when there is a state change because it makes for cleaner debugging output.
+		*/
+		if (currentState != requestedState)
+			setOutputState(requestedState);
 		return;
 	}
 
