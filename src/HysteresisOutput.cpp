@@ -55,6 +55,11 @@ void HysteresisOutput::setOutputState(bool state)
     hysteresis.setDuration(getHysteresisTime());
     }
 
+bool HysteresisOutput::getOutputState()
+    {
+    return currentState;
+    }
+
 Duration HysteresisOutput::getHysteresisTime()
     {
     return currentState ? minimumTimeOn : minimumTimeOff;

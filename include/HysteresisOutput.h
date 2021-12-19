@@ -48,6 +48,11 @@ class HysteresisOutput
     /// </summary>
     void setInputState(bool requestedState);
 
+    /// <summary>
+    /// Gets the current state of the output.
+    /// </summary>
+    bool getOutputState();
+
     // void forceOn();
     // void forceOff();
     /// <summary>
