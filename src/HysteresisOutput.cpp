@@ -9,31 +9,24 @@
 
 void HysteresisOutput::turnOn()
     {
-    setInputState(true);
+    targetState = true;
+    if (timeSinceOff.enabled()) // There is a hysteresis delay in effect
+        return;
+    setOutputState();
     }
 
 void HysteresisOutput::turnOff()
     {
-    setInputState(false);
+    targetState = false;
+    if (timeSinceOn.enabled()) // There is a hysteresis delay in effect
+        return;
+    setOutputState();
     }
 
 void HysteresisOutput::loop()
     {
-    // We don't need to take any action if the current state is already equal to the target state.
-    if (currentState == targetState)
-        {
-        // expired timers must be stopped or restarted, or there will be problems in 54 days!
-        if (hysteresis.expired())
-            hysteresis.stop();
-        return;
-        }
-
-    // There is a pending state change, but we might be in hysteresis.
-    if (!hysteresis.expired())
-        return;
-
-    // Now we have a pending state change and an expired timer: we can change the output state.
-    setOutputState(targetState);
+    if (timeSinceOff.expired() || timeSinceOn.expired())
+        setOutputState();
     }
 
 void HysteresisOutput::setLatchTimes(Duration onTime, Duration offTime)
@@ -48,11 +41,26 @@ void HysteresisOutput::setLatchTimes(Duration onTime, Duration offTime)
 /// is running, then we must also start the hysteresis timer so that the state is latched.
 /// </summary>
 /// <param name="state">The new output state.</param>
-void HysteresisOutput::setOutputState(bool state)
+void HysteresisOutput::setOutputState()
     {
-    currentState = state;
-    invokeUserStateChange(state); // Calls the user-supplied state change function
-    hysteresis.setDuration(getHysteresisTime());
+    if (targetState != currentState)
+        {
+        // Call the user state-change function, but only for actual state changes.
+        invokeUserStateChange(targetState);
+        currentState = targetState;
+        }
+
+    // Trigger the appropriate latch timer.
+    if (currentState)
+        {
+        timeSinceOn.setDuration(minimumTimeOn);
+        timeSinceOff.stop();
+        }
+    else
+        {
+        timeSinceOff.setDuration(minimumTimeOff);
+        timeSinceOn.stop();
+        }
     }
 
 bool HysteresisOutput::getOutputState()
@@ -71,26 +79,8 @@ Duration HysteresisOutput::getHysteresisTime()
 /// <param name="requestedState">The state being requested.</param>
 void HysteresisOutput::setInputState(bool requestedState)
     {
-    const bool returningToCurrentState =
-        targetState != currentState && requestedState == currentState;
-    targetState = requestedState;
-
-    // No hysteresis delay, immediate change in output state required.
-    if (!hysteresis.enabled())
-        {
-        /*
-        Setting the output state is expected to be idempotent, but we only call it
-        when there is a state change because it makes for cleaner debugging output.
-        */
-        if (currentState != requestedState)
-            setOutputState(requestedState);
-        return;
-        }
-
-    // A hysteresis timer is running and state change must be deferred
-    // However if we've changed away and back to the current state, the timer gets restarted.
-    if (returningToCurrentState)
-        {
-        hysteresis.setDuration(getHysteresisTime());
-        }
+    if (requestedState == true)
+        turnOn();
+    else
+        turnOff();
     }

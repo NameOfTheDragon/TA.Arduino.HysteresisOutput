@@ -14,6 +14,8 @@
 /// Example application: Given a rain detector that generates a pulse whenever a raindrop is
 /// detected, we might wish to produce an output that is latched on for several minutes from the
 /// last rain drop detection.
+/// Note - the latch time runs from the moment the output state changes,
+/// not from when the change was requested.
 /// </summary>
 class HysteresisOutput
     {
@@ -30,15 +32,19 @@ class HysteresisOutput
         : minimumTimeOn(MinimumTimeOn), minimumTimeOff(MinimumTimeOff),
           invokeUserStateChange(stateChanger)
         {
+        timeSinceOff.stop();
+        timeSinceOn.stop();
         }
 
     /// <summary>
     /// Turns the output on. May be delayed by hysteresis.
+    /// Equivalent to <c>setInputState(true)</c>.
     /// </summary>
     void turnOn();
 
     /// <summary>
-    /// Turns the output off. May be delayed by hysteresis
+    /// Turns the output off. May be delayed by hysteresis.
+    /// Equivalent to <c>setInputState(false)</c>.
     /// </summary>
     void turnOff();
 
@@ -57,7 +63,8 @@ class HysteresisOutput
     // void forceOff();
     /// <summary>
     /// Must be called periodically, typically from the Arduino main loop.
-    /// Timing resolution is dictated by how frequently this method is called, but is 1 ms at best.
+    /// Timing resolution is dictated by how frequently this method is called, but is 1 ms at
+    /// best.
     /// </summary>
     void loop();
 
@@ -68,12 +75,14 @@ class HysteresisOutput
     void setLatchTimes(Duration minimumTimeOn, Duration minimumTimeOff);
 
   private:
-    void setOutputState(bool state);
+    void setOutputState();
     Duration getHysteresisTime();
     Duration minimumTimeOn;
     Duration minimumTimeOff;
     std::function<void(bool)> invokeUserStateChange;
     bool targetState;
     Timer hysteresis;
+    Timer timeSinceOn;
+    Timer timeSinceOff;
     bool currentState;
     };
